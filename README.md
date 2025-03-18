@@ -1,8 +1,4 @@
-# 北极熊视觉系统
-
-> 本项目为北极熊视觉系统，基于 ROS2 实现不同兵种所需的视觉功能。
-
-日前迁移了 rm_vision 进入系统，实现了装甲板瞄准功能，现在正在开发能量机关识别以及矿物拾取和兑换识别。
+# 森林狼战队-rm_2025——serial
 
 ## 一. 环境搭建与编译
 
@@ -12,8 +8,8 @@ sudo apt install ros-humble-serial-driver
 ```
 
 ```sh
-git clone https://gitee.com/SMBU-POLARBEAR/PB_RM_Vision
-cd PB_RM_Vision
+git clone https://github.com/Xiancaijiang/rm_2025_serial.git
+cd rm_2025_serial
 ```
 
 ```sh
@@ -22,50 +18,11 @@ colcon build --symlink-install
 
 ## 二. 使用帮助
 
-### 1.1 启动所有模块
+### 1.1 修改，添加决策所需信息
+- GAME_STATUS
+- ROBOT_STATU
+- SHOOT_DATA
 
-以下为可供选择的 launch 文件和说明
-
-<!-- markdownlint-disable MD033 -->
-
-- <details>
-
-    <summary>rm_vision</summary>
-
-    仅包括 `装甲板识别` 模块
-
-    ```sh
-    sudo chmod 777 /dev/ttyACM0
-
-    source install/setup.bash
-    ros2 launch rm_vision_bringup vision_bringup.launch.py
-    ```
-
-  </details>
-
-<!-- markdownlint-enable MD033 -->
-
-- 步兵：包括 `装甲板识别` 和 `能量机关识别` 模块
-
-  ```sh
-  sudo chmod 777 /dev/ttyACM0
-
-  source install/setup.bash
-  ros2 launch rm_vision_bringup infantry_bringup.launch.py
-  ```
-
-- 英雄：包括 `装甲板识别` 模块
-
-  ```sh
-  sudo chmod 777 /dev/ttyACM0
-
-  source install/setup.bash
-  ros2 launch rm_vision_bringup hero_bringup.launch.py
-  ```
-
-- 工程：包括`兑换站识别`和`矿石识别`模块
-
-- 哨兵：包括`装甲板识别`模块
 
 ### 1.2 启动可视化
 
@@ -76,21 +33,6 @@ ros2 launch foxglove_bridge foxglove_bridge_launch.xml port:=8765
 
 ### 1.3 单独运行子模块
 
-一般用不上，写在这只为了有时开发要调用 rv 独立模块调试
-
-- 自瞄模块
-
-    ```sh
-    source install/setup.bash
-    ros2 launch auto_aim_bringup auto_aim.launch.py 
-    ```
-
-- 海康相机模块
-
-    ```sh
-    source install/setup.bash
-    ros2 launch hik_camera hik_camera.launch.py
-    ```
 
 - 串口模块
 
@@ -101,12 +43,15 @@ ros2 launch foxglove_bridge foxglove_bridge_launch.xml port:=8765
     ros2 launch rm_serial_driver serial_driver.launch.py
     ```
 
-- 能量机关识别模块
+- 读取裁判系统模块
 
     ```sh
+    sudo chmod 777 /dev/ttyACM1
+
     source install/setup.bash
-    ros2 launch rm_rune_detector rm_rune_detector.launch.py
+    ros2 run rm_referee_ros2 rm_referee_node --ros-args -p serial_port:=/dev/ttyUSB0 -p baud_rate:=115200 -p debug_mode:=true
     ```
+
 
 ## 三. 相关信息
 
@@ -115,6 +60,8 @@ ros2 launch foxglove_bridge foxglove_bridge_launch.xml port:=8765
 详见：[README (rm_serial_driver)](/src/rm_serial_driver/README.md)
 
 ## 其他文档
+
+> 本项目迁移前为北极熊视觉系统，有基于 ROS2 实现不同兵种所需的视觉功能，可以继续添加扩展。
 
 rm_vision 部署文档： [部署华师视觉项目](https://flowus.cn/lihanchen/share/0d472992-f136-4e0e-856f-89328e99c684) 
 
