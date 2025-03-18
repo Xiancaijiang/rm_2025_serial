@@ -28,6 +28,7 @@
 #include <geometry_msgs/msg/twist.hpp>
 #include <rm_referee_ros2/msg/shoot_data.hpp>
 #include <rm_referee_ros2/msg/robot_status.hpp>
+#include <rm_referee_ros2/msg/game_status.hpp>
 #include <rclcpp/publisher.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/subscription.hpp>

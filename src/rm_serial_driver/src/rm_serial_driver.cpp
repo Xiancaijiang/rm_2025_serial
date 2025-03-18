@@ -27,6 +27,7 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 #include <rm_referee_ros2/msg/shoot_data.hpp>
 #include <rm_referee_ros2/msg/robot_status.hpp>
+#include <rm_referee_ros2/msg/game_status.hpp>
 
 // C++ system
 #include <cstdint>
@@ -247,7 +248,7 @@ void RMSerialDriver::sendGameStatus(const rm_referee_ros2::msg::GameStatus::Shar
 {
     try {
         GameStatusPacket packet;
-        
+
         // 解码 game_type 和 game_progress（假设 msg 中的字段是原始字节）
         uint8_t game_info = (msg->game_progress << 4) | (msg->game_type & 0x0F);
         packet.game_type = game_info & 0x0F;        // 低4位
@@ -267,7 +268,7 @@ void RMSerialDriver::sendGameStatus(const rm_referee_ros2::msg::GameStatus::Shar
             (static_cast<uint64_t>(msg->sync_time_stamp >> 32 & 0xFFULL) << 32) |
             (static_cast<uint64_t>(msg->sync_time_stamp >> 40 & 0xFFULL) << 40) |
             (static_cast<uint64_t>(msg->sync_time_stamp >> 48 & 0xFFULL) << 48) |
-            (static_cast<uint64_t>(msg->sync_time_stamp >> 56 & 0xFFULL) << 56);
+            (static_cast<uint64_t>(msg->sync_time_stamp >> 56 & 0xFFULL) << 56));
 
         // 计算 CRC 校验和  
        crc16::Append_CRC16_Check_Sum(reinterpret_cast<uint8_t *>(&packet), sizeof(packet));  
