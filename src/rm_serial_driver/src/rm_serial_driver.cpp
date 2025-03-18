@@ -25,6 +25,8 @@
 #include <rclcpp/utilities.hpp>
 #include <serial_driver/serial_driver.hpp>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+#include <rm_referee_ros2/msg/shoot_data.hpp>
+#include <rm_referee_ros2/msg/robot_status.hpp>
 
 // C++ system
 #include <cstdint>
@@ -93,7 +95,12 @@ RMSerialDriver::RMSerialDriver(const rclcpp::NodeOptions & options)
     "/tracker/target", rclcpp::SensorDataQoS(),
     std::bind(&RMSerialDriver::sendDataVision, this, std::placeholders::_1));
   cmd_vel_sub_ = this->create_subscription<geometry_msgs::msg::Twist>(
-    "/cmd_vel", 10, std::bind(&RMSerialDriver::sendDataTwist, this, std::placeholders::_1));
+    "/cmd_vel_chassis", 10, std::bind(&RMSerialDriver::sendDataTwist, this, std::placeholders::_1));
+  // Create Subscription for shooting data  
+  shoot_data_sub_ = this->create_subscription<rm_referee_ros2::msg::ShootData>(  
+    "/referee/shoot_data", 10,  std::bind(&RMSerialDriver::sendShootData, this, std::placeholders::_1));  
+  robot_status_sub_ = this->create_subscription<rm_referee_ros2::msg::RobotStatus>(  
+    "/referee/robot_status", 10,  std::bind(&RMSerialDriver::sendRobotStatus, this, std::placeholders::_1));  
 }
 
 RMSerialDriver::~RMSerialDriver()
@@ -229,6 +236,62 @@ void RMSerialDriver::sendDataTwist(const geometry_msgs::msg::Twist::SharedPtr ms
     RCLCPP_ERROR(get_logger(), "Error while sending data: %s", ex.what());
     reopenPort();
   }
+}
+
+// 发送射击数据的函数  
+void RMSerialDriver::sendShootData(const rm_referee_ros2::msg::ShootData::SharedPtr msg)  
+{  
+    try {  
+        ShootDataPacket packet; // 创建数据包结构体  
+
+        // 复制数据  
+        packet.bullet_type = msg->bullet_type;  
+        packet.shooter_id = msg->shooter_id;  
+        packet.bullet_freq = msg->bullet_freq;  
+        packet.bullet_speed = msg->bullet_speed;  
+
+        // 计算 CRC 校验和  
+        crc16::Append_CRC16_Check_Sum(reinterpret_cast<uint8_t *>(&packet), sizeof(packet));  
+	
+	std::vector<uint8_t> data = toVector(packet);
+
+    	serial_driver_->port()->send(data);
+        
+    } catch (const std::exception & ex) {  
+        RCLCPP_ERROR(get_logger(), "Error while sending shoot data: %s", ex.what());  
+        reopenPort(); // 异常处理和重启串口  
+    }  
+}  
+
+// 发送比赛机器人血量数据的函数
+void RMSerialDriver::sendRobotStatus(const rm_referee_ros2::msg::RobotStatus::SharedPtr msg)
+{
+    try {
+        RobotStatusPacket packet; // 创建数据包结构体
+
+        // 复制数据
+        packet.robot_id = msg->robot_id;
+        packet.robot_level = msg->robot_level;
+        packet.current_hp = msg->current_hp;
+        packet.maximum_hp = msg->maximum_hp;
+        packet.shooter_barrel_cooling_value = msg->shooter_barrel_cooling_value;
+        packet.shooter_barrel_heat_limit = msg->shooter_barrel_heat_limit;
+        packet.chassis_power_limit = msg->chassis_power_limit;
+        packet.power_management_gimbal_output = msg->power_management_gimbal_output;
+        packet.power_management_chassis_output = msg->power_management_chassis_output;
+        packet.power_management_shooter_output = msg->power_management_shooter_output;
+
+        // 计算 CRC 校验和
+        crc16::Append_CRC16_Check_Sum(reinterpret_cast<uint8_t *>(&packet), sizeof(packet));
+
+        std::vector<uint8_t> data = toVector(packet);
+
+    	serial_driver_->port()->send(data);
+
+    } catch (const std::exception &ex) {
+        RCLCPP_ERROR(get_logger(), "Error while sending robot status: %s", ex.what());
+        reopenPort(); // 异常处理和重启串口
+    }
 }
 
 void RMSerialDriver::getParams()

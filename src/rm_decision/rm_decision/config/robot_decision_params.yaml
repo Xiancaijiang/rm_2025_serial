@@ -1,0 +1,16 @@
+/**:
+  ros__parameters:
+    use_sim_time: true
+
+robot_decision:
+  ros__parameters:
+    # 初始位置参数
+    init_x: 0.0
+    init_y: 0.0
+    init_z: 0.0
+    init_yaw: 0.0
+    
+    # 导航参数
+    target_distance: 0.1 # 目标直线距离（米）
+    position_tolerance: 0.1  # 位置容差（米）
+    orientation_tolerance: 0.1  # 朝向容差（弧度） 

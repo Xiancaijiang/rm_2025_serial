@@ -39,12 +39,20 @@ rclcpp_components_register_node(${PROJECT_NAME}
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
+  find_package(std_msgs REQUIRED)
+  find_package(rosidl_default_generators REQUIRED)
   list(APPEND AMENT_LINT_AUTO_EXCLUDE
     ament_cmake_copyright
     ament_cmake_uncrustify
   )
   ament_lint_auto_find_test_dependencies()
 endif()
+
+rosidl_generate_interfaces(${PROJECT_NAME}_interfaces
+  "msg/ShootData.msg"
+  "msg/RobotStatus.msg"
+  DEPENDENCIES std_msgs
+)
 
 #############
 ## Install ##

@@ -26,6 +26,8 @@
 #include <auto_aim_interfaces/msg/target.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <geometry_msgs/msg/twist.hpp>
+#include <rm_referee_ros2/msg/shoot_data.hpp>
+#include <rm_referee_ros2/msg/robot_status.hpp>
 #include <rclcpp/publisher.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/subscription.hpp>
@@ -66,6 +68,10 @@ private:
 
   void resetTracker();
 
+  void sendShootData(const rm_referee_ros2::msg::ShootData::SharedPtr msg);
+
+  void sendRobotStatus(const rm_referee_ros2::msg::RobotStatus::SharedPtr msg);
+
   // Serial port
   std::unique_ptr<IoContext> owned_ctx_;
   std::string device_name_;
@@ -93,7 +99,8 @@ private:
 
   rclcpp::Subscription<auto_aim_interfaces::msg::Target>::SharedPtr target_sub_;
   rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_sub_;
-
+  rclcpp::Subscription<rm_referee_ros2::msg::ShootData>::SharedPtr shoot_data_sub_; 
+  rclcpp::Subscription<rm_referee_ros2::msg::RobotStatus>::SharedPtr robot_status_sub_; 
   // For debug usage
   rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr latency_pub_;
   rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr marker_pub_;

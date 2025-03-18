@@ -5,3 +5,9 @@ log/
 
 # vscode file
 *.vscode/
+
+source install/setup.bash
+
+ls /dev/tty*
+sudo chmod 777 /dev/ttyACM0
+ros2 launch rm_serial_driver serial_driver.launch.py

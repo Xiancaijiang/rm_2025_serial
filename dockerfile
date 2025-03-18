@@ -1,5 +1,9 @@
 FROM ros:humble-ros-base
 
+ls /dev/tty*
+sudo chmod 777 /dev/ttyUSB0
+source install/setup.bash
+ros2 launch rm_serial_driver serial_driver.launch.py
 # 小鱼一键换源
 RUN apt update \ 
     && apt install wget python3-yaml -y  \
