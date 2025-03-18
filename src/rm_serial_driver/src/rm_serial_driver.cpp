@@ -245,23 +245,42 @@ void RMSerialDriver::sendDataTwist(const geometry_msgs::msg::Twist::SharedPtr ms
 // 发送比赛状态数据的函数
 void RMSerialDriver::sendGameStatus(const rm_referee_ros2::msg::GameStatus::SharedPtr msg)
 {
-  try {
-      GameStatusPacket packet;
-      packet.game_status = msg->game_status;
-      packet.remaining_time = msg->remaining_time;
-      packet.stage_status = msg->stage_status;
-      packet.game_type = msg->game_type;
+    try {
+        GameStatusPacket packet;
+        
+        // 解码 game_type 和 game_progress（假设 msg 中的字段是原始字节）
+        uint8_t game_info = (msg->game_progress << 4) | (msg->game_type & 0x0F);
+        packet.game_type = game_info & 0x0F;        // 低4位
+        packet.game_progress = (game_info >> 4) & 0x0F; // 高4位
 
-      crc16::Append_CRC16_Check_Sum(reinterpret_cast<uint8_t *>(&packet), sizeof(packet));
+        // 解码阶段剩余时间
+        packet.stage_remain_time = 
+            static_cast<uint16_t>(msg->stage_remain_time & 0xFF) | 
+            (static_cast<uint16_t>(msg->stage_remain_time >> 8) << 8);
 
-      std::vector<uint8_t> data = toVector(packet);
+        // 解码时间戳
+        packet.sync_time_stamp = 
+            static_cast<uint64_t>(msg->sync_time_stamp & 0xFFULL) |
+            (static_cast<uint64_t>(msg->sync_time_stamp >> 8 & 0xFFULL) << 8 |
+            (static_cast<uint64_t>(msg->sync_time_stamp >> 16 & 0xFFULL) << 16) |
+            (static_cast<uint64_t>(msg->sync_time_stamp >> 24 & 0xFFULL) << 24) |
+            (static_cast<uint64_t>(msg->sync_time_stamp >> 32 & 0xFFULL) << 32) |
+            (static_cast<uint64_t>(msg->sync_time_stamp >> 40 & 0xFFULL) << 40) |
+            (static_cast<uint64_t>(msg->sync_time_stamp >> 48 & 0xFFULL) << 48) |
+            (static_cast<uint64_t>(msg->sync_time_stamp >> 56 & 0xFFULL) << 56);
 
-      serial_driver_->port()->send(data);
+        // 计算 CRC 校验和  
+       crc16::Append_CRC16_Check_Sum(reinterpret_cast<uint8_t *>(&packet), sizeof(packet));  
+	
+	     std::vector<uint8_t> data = toVector(packet);
 
-  } catch (const std::exception & ex) {
-      RCLCPP_ERROR(get_logger(), "Error while sending game status: %s", ex.what());
-      reopenPort(); // 异常处理和重启串口
-  }
+        // 发送数据
+        serial_driver_->port()->send(data);
+
+    } catch (const std::exception& ex) {
+        RCLCPP_ERROR(get_logger(), "Error while sending game status: %s", ex.what());
+        reopenPort();
+    }
 }
 
 // 发送射击数据的函数  
