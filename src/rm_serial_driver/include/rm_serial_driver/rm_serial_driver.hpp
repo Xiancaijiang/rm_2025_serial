@@ -72,6 +72,8 @@ private:
 
   void sendRobotStatus(const rm_referee_ros2::msg::RobotStatus::SharedPtr msg);
 
+  void sendGameStatus(const rm_referee_ros2::msg::GameStatus::SharedPtr msg);
+
   // Serial port
   std::unique_ptr<IoContext> owned_ctx_;
   std::string device_name_;
@@ -101,6 +103,8 @@ private:
   rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_sub_;
   rclcpp::Subscription<rm_referee_ros2::msg::ShootData>::SharedPtr shoot_data_sub_; 
   rclcpp::Subscription<rm_referee_ros2::msg::RobotStatus>::SharedPtr robot_status_sub_; 
+  rclcpp::Subscription<rm_referee_ros2::msg::GameStatus>::SharedPtr game_status_sub_;
+  
   // For debug usage
   rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr latency_pub_;
   rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr marker_pub_;

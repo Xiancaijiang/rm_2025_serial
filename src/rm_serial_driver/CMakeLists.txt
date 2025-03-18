@@ -51,6 +51,7 @@ endif()
 rosidl_generate_interfaces(${PROJECT_NAME}_interfaces
   "msg/ShootData.msg"
   "msg/RobotStatus.msg"
+  "msg/GameStatus.msg"
   DEPENDENCIES std_msgs
 )
 
