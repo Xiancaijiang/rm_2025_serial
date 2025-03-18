@@ -25,6 +25,16 @@ struct ReceivePacketVision
   uint16_t checksum = 0;
 } __attribute__((packed));
 
+//比赛状态结构体
+struct GameStatusPacket
+{
+  uint8_t header = 0xA8;
+  uint8_t game_type : 4;          // 比赛类型
+  uint8_t game_progress : 4;      // 比赛阶段
+  uint16_t stage_remain_time;     // 当前阶段剩余时间，单位s
+  uint64_t sync_time_stamp;       // 机器人接收到该指令的精确 Unix 时间
+} __attribute__((packed)); 
+
 // 比赛机器人血量数据结构体
 struct RobotStatusPacket
 { 
@@ -51,6 +61,7 @@ struct ShootDataPacket
   float bullet_speed;      // 射速(m/s)  
   uint16_t checksum = 0;  // 校验和  
 } __attribute__((packed));  
+
 
 struct SendPacketVision
 {
