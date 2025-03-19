@@ -1,0 +1,6 @@
+[submodule "src/rm_decision/rm_referee_ros2"]
+	path = src/rm_decision/rm_referee_ros2
+	url = git@github.com:huer512/rm_referee_ros2.git
+[submodule "src/rm_decision/serial"]
+	path = src/rm_decision/serial
+	url = git@github.com:huer512/serial.git
